@@ -1,0 +1,23 @@
+{
+  "name": "andrium/php-curl-wrapper",
+  "description": "The simplest wrapper for CURL on PHP",
+  "keywords": ["php", "curl"],
+  "homepage": "https://github.com/andrium/php-curl-wrapper",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Andrey Kroshkin",
+      "email": "andrium@ya.ru"
+    }
+  ],
+  "require": {
+    "php": ">=5.5.0",
+    "ext-curl": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "andrium\\CURL\\": "src/"
+    }
+  }
+}
