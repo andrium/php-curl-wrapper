@@ -7,14 +7,8 @@ namespace andrium\CURL;
  * @package andrium\CURL
  * @author Andrey Kroshkin <andrium@ya.ru>
  */
-class Easy
+class Easy extends AbstractHandleContainer
 {
-    /**
-     * CURL Easy Handle resource
-     * @var resource
-     */
-    private $handle;
-
     /**
      * Initialize CURL Easy Handle
      * @param array $options - An array specifying which options to set and their values
@@ -50,7 +44,7 @@ class Easy
     public function setOption($option, $value)
     {
         if ($option === CURLOPT_SHARE && $value instanceof Share) {
-            curl_setopt($this->handle, $option, $value->getHandle());
+            curl_setopt($this->handle, $option, $value->handle);
         } else {
             curl_setopt($this->handle, $option, $value);
         }
@@ -70,15 +64,6 @@ class Easy
         }
 
         return $this;
-    }
-
-    /**
-     * Get CURL Easy Handle resource
-     * @return resource - CURL Easy Handle resource
-     */
-    public function getHandle()
-    {
-        return $this->handle;
     }
 
     /**

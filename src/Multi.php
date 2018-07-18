@@ -7,13 +7,13 @@ namespace andrium\CURL;
  * @package andrium\CURL
  * @author Andrey Kroshkin <andrium@ya.ru>
  */
-class Multi extends Easy\Collection
+class Multi extends AbstractHandleContainer implements \ArrayAccess, \Iterator, \Countable
 {
     /**
-     * CURL Multi Handle resource
-     * @var resource
+     * CURL Easy Handles
+     * @var Easy[]
      */
-    private $handle;
+    private $collection = [];
 
     /**
      * Initialize CURL Multi Handle
@@ -30,9 +30,10 @@ class Multi extends Easy\Collection
      */
     public function __destruct()
     {
-        foreach ($this as $request) {
-            curl_multi_remove_handle($this->handle, $request->getHandle());
+        foreach ($this->collection as $easy) {
+            curl_multi_remove_handle($this->handle, $easy->handle);
         }
+
         curl_multi_close($this->handle);
     }
 
@@ -65,7 +66,7 @@ class Multi extends Easy\Collection
 
     /**
      * Run the requests of the collection
-     * @return $this
+     * @return void
      * @throws Multi\Error
      */
     public function execute()
@@ -77,34 +78,145 @@ class Multi extends Easy\Collection
         if ($errornum !== CURLM_OK) {
             throw new Multi\Error(curl_multi_strerror($errornum), $errornum);
         }
-
-        return $this;
     }
 
     /**
-     * Add request to collection
+     * Add CURL Easy Handle to the collection
      * @param mixed $name
-     * @param Easy $request
+     * @param Easy $easy
      * @throws Multi\Error
      */
-    protected function add($name, Easy $request)
+    protected function add($name, Easy $easy)
     {
-        if (($errornum = curl_multi_add_handle($this->handle, $request->getHandle())) !== CURLM_OK) {
+        if (($errornum = curl_multi_add_handle($this->handle, $easy->handle)) !== CURLM_OK) {
             throw new Multi\Error(curl_multi_strerror($errornum), $errornum);
         }
-        parent::add($name, $request);
+
+        if ($name === null) {
+            $this->collection[] = $easy;
+        } else {
+            $this->collection[$name] = $easy;
+        }
     }
 
     /**
-     * Remove request from collection
+     * Remove CURL Easy Handle from the collection
      * @param mixed $name
      * @throws Multi\Error
      */
     protected function remove($name)
     {
-        if (($errornum = curl_multi_remove_handle($this->handle, $this[$name]->getHandle())) !== CURLM_OK) {
+        if (($errornum = curl_multi_remove_handle($this->handle, $this->collection[$name]->handle)) !== CURLM_OK) {
             throw new Multi\Error(curl_multi_strerror($errornum), $errornum);
         }
-        parent::remove($name);
+
+        unset($this->collection[$name]);
+    }
+
+    /**
+     * Whether an offset exists
+     * @link http://php.net/manual/arrayaccess.offsetexists.php
+     * @param mixed $offset
+     * @return bool
+     */
+    public function offsetExists($offset)
+    {
+        return array_key_exists($offset, $this->collection);
+    }
+
+    /**
+     * Offset to retrieve
+     * @link http://php.net/manual/arrayaccess.offsetget.php
+     * @param mixed $offset
+     * @return Easy
+     */
+    public function offsetGet($offset)
+    {
+        return $this->collection[$offset];
+    }
+
+    /**
+     * Assign a value to the specified offset
+     * @link http://php.net/manual/arrayaccess.offsetset.php
+     * @param mixed $offset
+     * @param Easy $value
+     * @return void
+     * @throws Multi\Error
+     */
+    public function offsetSet($offset, $value)
+    {
+        $this->add($offset, $value);
+    }
+
+    /**
+     * Unset an offset
+     * @link http://php.net/manual/arrayaccess.offsetunset.php
+     * @param mixed $offset
+     * @return void
+     * @throws Multi\Error
+     */
+    public function offsetUnset($offset)
+    {
+        $this->remove($offset);
+    }
+
+    /**
+     * Return the current element
+     * @link http://php.net/manual/iterator.current.php
+     * @return Easy
+     */
+    public function current()
+    {
+        return current($this->collection);
+    }
+
+    /**
+     * Move forward to next element
+     * @link http://php.net/manual/iterator.next.php
+     * @return void
+     */
+    public function next()
+    {
+        next($this->collection);
+    }
+
+    /**
+     * Return the key of the current element
+     * @link http://php.net/manual/en/iterator.key.php
+     * @return mixed
+     */
+    public function key()
+    {
+        return key($this->collection);
+    }
+
+    /**
+     * Checks if current position is valid
+     * @link http://php.net/manual/iterator.valid.php
+     * @return bool
+     */
+    public function valid()
+    {
+        return key($this->collection) !== null;
+    }
+
+    /**
+     * Rewind the Iterator to the first element
+     * @link http://php.net/manual/iterator.rewind.php
+     * @return void
+     */
+    public function rewind()
+    {
+        reset($this->collection);
+    }
+
+    /**
+     * Count elements of an object
+     * @link http://php.net/manual/countable.count.php
+     * @return int
+     */
+    public function count()
+    {
+        return count($this->collection);
     }
 }

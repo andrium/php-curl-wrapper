@@ -7,14 +7,8 @@ namespace andrium\CURL;
  * @package andrium\CURL
  * @author Andrey Kroshkin <andrium@ya.ru>
  */
-class Share
+class Share extends AbstractHandleContainer
 {
-    /**
-     * CURL Share Handle resource
-     * @var resource
-     */
-    private $handle;
-
     /**
      * Initialize CURL Share Handle
      * @param array $options - An array specifying which options to set and their values
@@ -54,18 +48,9 @@ class Share
     public function setOptions(array $options)
     {
         foreach ($options as $option => $value) {
-            curl_share_setopt($this->handle, $option, $value);
+            $this->setOption($option, $value);
         }
 
         return $this;
-    }
-
-    /**
-     * Get CURL Share Handle resource
-     * @return resource - CURL Share Handle resource
-     */
-    public function getHandle()
-    {
-        return $this->handle;
     }
 }
