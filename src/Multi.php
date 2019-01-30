@@ -72,11 +72,21 @@ class Multi extends AbstractHandleContainer implements \ArrayAccess, \Iterator, 
     public function execute()
     {
         do {
-            $errornum = curl_multi_exec($this->handle, $still_running);
-        } while ($still_running);
+            $err_code = curl_multi_exec($this->handle, $status);
+        } while ($err_code === CURLM_CALL_MULTI_PERFORM);
 
-        if ($errornum !== CURLM_OK) {
-            throw new Multi\Error(curl_multi_strerror($errornum), $errornum);
+        while ($status && $err_code === CURLM_OK) {
+            if (curl_multi_select($this->handle) === -1) {
+                usleep(1);
+            }
+
+            do {
+                $err_code = curl_multi_exec($this->handle, $status);
+            } while ($err_code === CURLM_CALL_MULTI_PERFORM);
+        }
+
+        if ($err_code !== CURLM_OK) {
+            throw new Multi\Error(curl_multi_strerror($err_code), $err_code);
         }
     }
 
