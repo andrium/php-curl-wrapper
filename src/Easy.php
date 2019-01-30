@@ -7,7 +7,7 @@ namespace andrium\CURL;
  * @package andrium\CURL
  * @author Andrey Kroshkin <andrium@ya.ru>
  */
-class Easy extends AbstractHandleContainer
+class Easy extends HandleContainer
 {
     /**
      * Initialize CURL Easy Handle

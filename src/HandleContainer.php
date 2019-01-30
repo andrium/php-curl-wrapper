@@ -3,11 +3,11 @@
 namespace andrium\CURL;
 
 /**
- * Class AbstractHandleContainer
+ * Class HandleContainer
  * @package andrium\CURL
  * @author Andrey Kroshkin <andrium@ya.ru>
  */
-abstract class AbstractHandleContainer
+abstract class HandleContainer
 {
     /**
      * @var resource

@@ -7,7 +7,7 @@ namespace andrium\CURL;
  * @package andrium\CURL
  * @author Andrey Kroshkin <andrium@ya.ru>
  */
-class Share extends AbstractHandleContainer
+class Share extends HandleContainer
 {
     /**
      * Initialize CURL Share Handle

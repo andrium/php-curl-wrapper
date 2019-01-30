@@ -7,7 +7,7 @@ namespace andrium\CURL;
  * @package andrium\CURL
  * @author Andrey Kroshkin <andrium@ya.ru>
  */
-class Multi extends AbstractHandleContainer implements \ArrayAccess, \Iterator, \Countable
+class Multi extends HandleContainer implements \ArrayAccess, \Iterator, \Countable
 {
     /**
      * CURL Easy Handles
